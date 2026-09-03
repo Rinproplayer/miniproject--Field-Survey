@@ -5,6 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
     <title>VKU Field Survey — Offline Data Collection</title>
     
+    <!-- Canonical domain redirection: Always direct users to the official optimized production domain -->
+    <script>
+      (function() {
+        var h = window.location.hostname;
+        if (h.endsWith('.miniproject--field-survey.pages.dev') && h !== 'miniproject--field-survey.pages.dev') {
+          window.location.replace('https://miniproject--field-survey.pages.dev' + window.location.pathname + window.location.search);
+        }
+      })();
+    </script>
+
     <!-- PWA & Theme Configuration -->
     <meta name="theme-color" content="#0284c7" />
     <meta name="description" content="Offline-first PWA for campus facility inspections & mobile surveys at VKU" />
@@ -23,23 +33,31 @@
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
     <script>
-      // Register Service Worker for PWA offline capabilities
+      // Service Worker registration with automatic cache purge & update management
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
           navigator.serviceWorker.register('/sw.js')
             .then((registration) => {
-              console.log('[PWA] ServiceWorker registered with scope:', registration.scope);
+              // Automatically check for new updates on every page visit
+              registration.update();
               
               // Register Background Sync if supported
               if ('SyncManager' in window) {
-                registration.sync.register('sync-surveys')
-                  .then(() => console.log('[PWA] Background Sync registered: sync-surveys'))
-                  .catch((err) => console.log('[PWA] Background sync registration notice:', err));
+                registration.sync.register('sync-surveys').catch(() => {});
               }
             })
             .catch((err) => {
-              console.error('[PWA] ServiceWorker registration failed:', err);
+              console.warn('[PWA] ServiceWorker registration warning:', err);
             });
+
+          // If a newly activated Service Worker takes over, refresh once to apply clean cache
+          let isRefreshing = false;
+          navigator.serviceWorker.addEventListener('controllerchange', () => {
+            if (!isRefreshing) {
+              isRefreshing = true;
+              window.location.reload();
+            }
+          });
         });
       }
     </script>

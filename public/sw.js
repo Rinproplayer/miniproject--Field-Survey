@@ -1,11 +1,11 @@
 /**
- * VKU Field Survey - Service Worker
- * Strategy: Cache-First for App Shell assets, Network-First for dynamic APIs
- * Lifecycle: Install -> Pre-cache -> Activate -> Clean Old Caches -> Fetch Interception
- * Background Sync: Handles 'sync-surveys' event
+ * VKU Field Survey - Service Worker (v3 - Optimized Auto-Updating)
+ * Strategy: Network-First for Navigation (HTML) to always serve latest code, 
+ *           Cache-First for Static Assets (CSS, JS, Fonts, Icons) for sub-second offline boot.
+ * Auto-Cleanup: Purges all legacy caches on activation.
  */
 
-const CACHE_NAME = 'vku-survey-cache-v1';
+const CACHE_NAME = 'vku-survey-cache-v3';
 const APP_SHELL_ASSETS = [
   '/',
   '/index.html',
@@ -16,28 +16,25 @@ const APP_SHELL_ASSETS = [
   '/icons/icon-512x512-maskable.png',
 ];
 
-// 1. INSTALL EVENT: Pre-cache core App Shell assets
+// 1. INSTALL: Pre-cache App Shell and skip waiting immediately
 self.addEventListener('install', (event) => {
-  console.log('[ServiceWorker] Install Event: Pre-caching App Shell');
+  self.skipWaiting();
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
       return cache.addAll(APP_SHELL_ASSETS);
-    }).then(() => {
-      return self.skipWaiting();
     })
   );
 });
 
-// 2. ACTIVATE EVENT: Clean up deprecated cache versions
+// 2. ACTIVATE: Purge all legacy caches and take control of all clients
 self.addEventListener('activate', (event) => {
-  console.log('[ServiceWorker] Activate Event: Cleaning old caches');
   event.waitUntil(
-    caches.keys().then((cacheNames) => {
+    caches.keys().then((keys) => {
       return Promise.all(
-        cacheNames.map((name) => {
-          if (name !== CACHE_NAME) {
-            console.log('[ServiceWorker] Removing old cache:', name);
-            return caches.delete(name);
+        keys.map((key) => {
+          if (key !== CACHE_NAME) {
+            console.log('[ServiceWorker] Purging legacy cache:', key);
+            return caches.delete(key);
           }
         })
       );
@@ -47,22 +44,22 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// 3. FETCH EVENT: Cache-First for assets with dynamic runtime caching
+// 3. FETCH: Smart Network-First for HTML, Cache-First for static assets
 self.addEventListener('fetch', (event) => {
   const request = event.request;
   const url = new URL(request.url);
 
-  // Skip non-GET requests or chrome-extension schemes
+  // Skip non-GET and external non-http schemes
   if (request.method !== 'GET' || !url.protocol.startsWith('http')) {
     return;
   }
 
-  // For API or webhook requests, let network handle or fallback
+  // Bypass APIs & Google Sheets endpoints (let network handle)
   if (url.pathname.startsWith('/api/') || url.hostname.includes('script.google.com')) {
     event.respondWith(
       fetch(request).catch(() => {
         return new Response(
-          JSON.stringify({ error: 'Network unavailable. Request queued offline.' }),
+          JSON.stringify({ error: 'Ngoại tuyến: Dữ liệu đã lưu hàng đợi' }),
           { headers: { 'Content-Type': 'application/json' }, status: 503 }
         );
       })
@@ -70,41 +67,41 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Navigation requests (HTML document) - Cache-First with fallback to index.html for SPA
+  // NAVIGATION REQUESTS (HTML): Network-First with Cache Fallback
+  // This guarantees old browsers always get the latest optimized web app when online!
   if (request.mode === 'navigate') {
     event.respondWith(
-      caches.match('/index.html').then((cachedIndex) => {
-        return (
-          cachedIndex ||
-          fetch(request).then((networkResponse) => {
-            const responseClone = networkResponse.clone();
-            caches.open(CACHE_NAME).then((cache) => cache.put('/index.html', responseClone));
-            return networkResponse;
-          })
-        );
-      }).catch(() => caches.match('/index.html'))
+      fetch(request)
+        .then((networkResponse) => {
+          if (networkResponse && networkResponse.status === 200) {
+            const clone = networkResponse.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put('/index.html', clone));
+          }
+          return networkResponse;
+        })
+        .catch(() => {
+          // If offline or network fails, return cached index.html
+          return caches.match('/index.html');
+        })
     );
     return;
   }
 
-  // Static Assets (CSS, JS, Fonts, Images) - Cache-First Strategy
+  // STATIC ASSETS (JS, CSS, Images, Icons): Cache-First Strategy
   event.respondWith(
-    caches.match(request).then((cachedResponse) => {
-      if (cachedResponse) {
-        return cachedResponse;
+    caches.match(request).then((cached) => {
+      if (cached) {
+        return cached;
       }
       return fetch(request).then((networkResponse) => {
         if (!networkResponse || networkResponse.status !== 200 || networkResponse.type !== 'basic') {
           return networkResponse;
         }
-        const responseToCache = networkResponse.clone();
-        caches.open(CACHE_NAME).then((cache) => {
-          cache.put(request, responseToCache);
-        });
+        const clone = networkResponse.clone();
+        caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
         return networkResponse;
       });
     }).catch(() => {
-      // In offline mode, if an asset fails, fallback gracefully
       if (request.destination === 'image') {
         return caches.match('/icons/icon-192x192.png');
       }
@@ -112,9 +109,8 @@ self.addEventListener('fetch', (event) => {
   );
 });
 
-// 4. BACKGROUND SYNC EVENT: Triggered automatically upon network restoration
+// 4. BACKGROUND SYNC EVENT
 self.addEventListener('sync', (event) => {
-  console.log('[ServiceWorker] Background Sync event triggered:', event.tag);
   if (event.tag === 'sync-surveys') {
     event.waitUntil(
       self.clients.matchAll().then((clients) => {
