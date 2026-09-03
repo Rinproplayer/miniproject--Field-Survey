@@ -14,7 +14,10 @@ import {
   User, 
   Calendar,
   X,
-  Smartphone
+  Smartphone,
+  FileSpreadsheet,
+  ExternalLink,
+  Info
 } from 'lucide-react';
 import { deleteSurvey, updateSurveyStatus } from '../services/db';
 import { syncQueue } from '../services/sync';
@@ -84,22 +87,44 @@ export const SurveyQueueList: React.FC<SurveyQueueListProps> = ({ surveys, onRef
         <div>
           <h3 className="font-bold text-slate-800 text-base">Hàng Đợi Khảo Sát Ngoại Tuyến (Offline Queue)</h3>
           <p className="text-xs text-slate-500">
-            Tổng cộng {surveys.length} phiếu ({pendingCount} chờ đồng bộ, {syncedCount} đã đồng bộ)
+            Tổng cộng {surveys.length} phiếu trên máy này ({pendingCount} chờ gửi, {syncedCount} đã đồng bộ)
           </p>
         </div>
 
-        <button
-          onClick={handleManualSync}
-          disabled={isSyncing || pendingCount === 0}
-          className={`flex items-center justify-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition cursor-pointer ${
-            pendingCount > 0
-              ? 'bg-sky-600 hover:bg-sky-500 text-white shadow'
-              : 'bg-slate-100 text-slate-400 cursor-not-allowed'
-          }`}
-        >
-          <RefreshCw className={`w-3.5 h-3.5 ${isSyncing ? 'animate-spin' : ''}`} />
-          <span>{isSyncing ? 'Đang gửi tuần tự...' : `Đồng bộ tất cả (${pendingCount})`}</span>
-        </button>
+        <div className="flex items-center gap-2">
+          <a
+            href="https://docs.google.com/spreadsheets/d/1IQMieaQYSxdWW_G_FlVtJaH6ffGZ0ci00tvW4B8L6qs/edit?gid=0#gid=0"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-1.5 px-3 py-2 bg-emerald-50 text-emerald-800 border border-emerald-300 rounded-xl text-xs font-bold hover:bg-emerald-100 transition shadow-xs"
+            title="Mở Google Sheets để xem toàn bộ dữ liệu tập trung đã đồng bộ từ tất cả các máy"
+          >
+            <FileSpreadsheet className="w-4 h-4 text-emerald-600" />
+            <span>Mở Google Sheets</span>
+            <ExternalLink className="w-3 h-3 text-emerald-600" />
+          </a>
+
+          <button
+            onClick={handleManualSync}
+            disabled={isSyncing || pendingCount === 0}
+            className={`flex items-center justify-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition cursor-pointer ${
+              pendingCount > 0
+                ? 'bg-sky-600 hover:bg-sky-500 text-white shadow'
+                : 'bg-slate-100 text-slate-400 cursor-not-allowed'
+            }`}
+          >
+            <RefreshCw className={`w-3.5 h-3.5 ${isSyncing ? 'animate-spin' : ''}`} />
+            <span>{isSyncing ? 'Đang gửi...' : `Đồng bộ (${pendingCount})`}</span>
+          </button>
+        </div>
+      </div>
+
+      {/* Cloud database explanation banner */}
+      <div className="bg-sky-50/70 border border-sky-200 p-3 rounded-xl flex items-start gap-2 text-xs text-sky-900">
+        <Info className="w-4 h-4 text-sky-600 shrink-0 mt-0.5" />
+        <span>
+          <strong>Lưu ý về cơ sở dữ liệu:</strong> Bảng dưới đây là <strong>Hàng đợi ngoại tuyến (Offline Queue)</strong> lưu trong bộ nhớ cục bộ (IndexedDB) của thiết bị/trình duyệt này để phục vụ khi mất mạng. Toàn bộ phiếu khảo sát đã gửi thành công đều được lưu trữ vĩnh viễn và tập hợp tại <strong>Google Sheets Database</strong> đám mây chung!
+        </span>
       </div>
 
       {/* Filter Tabs */}

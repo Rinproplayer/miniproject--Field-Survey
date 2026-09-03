@@ -190,6 +190,10 @@ export const MultiStepForm: React.FC<MultiStepFormProps> = ({ onSurveySubmitted 
   // Submit Survey Form
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (step < 3) {
+      setStep((prev) => Math.min(prev + 1, 3));
+      return;
+    }
     setSubmitting(true);
 
     try {
@@ -655,8 +659,13 @@ export const MultiStepForm: React.FC<MultiStepFormProps> = ({ onSurveySubmitted 
           <div className="flex items-center gap-2">
             {step < 3 ? (
               <button
+                key="btn-step-next"
                 type="button"
-                onClick={() => setStep(step + 1)}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setStep((prev) => Math.min(prev + 1, 3));
+                }}
                 className="flex items-center gap-1.5 px-5 py-2.5 rounded-xl text-xs font-semibold text-white bg-sky-600 hover:bg-sky-500 shadow-sm transition cursor-pointer"
               >
                 <span>Tiếp theo</span>
@@ -664,6 +673,7 @@ export const MultiStepForm: React.FC<MultiStepFormProps> = ({ onSurveySubmitted 
               </button>
             ) : (
               <button
+                key="btn-step-submit"
                 type="submit"
                 disabled={submitting}
                 className="flex items-center gap-2 px-6 py-2.5 rounded-xl text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-500 shadow-md transition cursor-pointer disabled:opacity-50"
