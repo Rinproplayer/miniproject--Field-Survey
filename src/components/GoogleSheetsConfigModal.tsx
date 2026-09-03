@@ -56,6 +56,46 @@ function doPost(e) {
     return ContentService.createTextOutput(JSON.stringify({ result: "error", message: err.toString() }))
       .setMimeType(ContentService.MimeType.JSON);
   }
+}
+
+// Hàm đọc dữ liệu từ Google Sheets về app
+function doGet(e) {
+  try {
+    var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+    var data = sheet.getDataRange().getValues();
+    if (data.length <= 1) {
+      return ContentService.createTextOutput(JSON.stringify([]))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
+    
+    var list = [];
+    for (var i = 1; i < data.length; i++) {
+      var r = data[i];
+      if (!r[0]) continue;
+      list.push({
+        id: String(r[0]),
+        timestamp: r[1] ? new Date(r[1]).toISOString() : new Date().toISOString(),
+        auditorName: String(r[2] || ""),
+        surveyLocation: String(r[3] || ""),
+        targetAudience: String(r[4] || "Sinh viên VKU"),
+        currentBrand: String(r[5] || "Khác"),
+        currentDeviceName: String(r[6] || ""),
+        budgetSegment: String(r[7] || "5 - 10 triệu"),
+        primaryUsage: String(r[8] || "Học tập & Tra cứu"),
+        satisfactionRating: Number(r[9]) || 4,
+        priorityFeature: String(r[10] || ""),
+        expectedUpgradeTime: String(r[11] || ""),
+        defectOrFeedbackNotes: String(r[12] || ""),
+        hasPhoto: String(r[13] || ""),
+        syncStatus: "SYNCED"
+      });
+    }
+    return ContentService.createTextOutput(JSON.stringify(list))
+      .setMimeType(ContentService.MimeType.JSON);
+  } catch (err) {
+    return ContentService.createTextOutput(JSON.stringify({ error: err.toString() }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
 }`;
 
 export const GoogleSheetsConfigModal: React.FC<GoogleSheetsConfigModalProps> = ({ isOpen, onClose }) => {

@@ -1,4 +1,6 @@
+import { useState } from 'react';
 import type { SmartphoneSurveyItem } from '../types/survey';
+import { fetchSurveysFromGoogleSheets } from '../services/sync';
 import { 
   BarChart3, 
   PieChart, 
@@ -8,14 +10,37 @@ import {
   Clock, 
   FileSpreadsheet, 
   FileCode,
-  TrendingUp
+  TrendingUp,
+  RefreshCw,
+  ExternalLink,
+  Info
 } from 'lucide-react';
 
 interface StatisticsDashboardProps {
   surveys: SmartphoneSurveyItem[];
+  onRefreshNeeded?: () => void;
 }
 
-export const StatisticsDashboard: React.FC<StatisticsDashboardProps> = ({ surveys }) => {
+export const StatisticsDashboard: React.FC<StatisticsDashboardProps> = ({ surveys, onRefreshNeeded }) => {
+  const [isPulling, setIsPulling] = useState<boolean>(false);
+  const [syncNotice, setSyncNotice] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+
+  const handlePullGoogleSheets = async () => {
+    setIsPulling(true);
+    setSyncNotice(null);
+    const result = await fetchSurveysFromGoogleSheets();
+    setIsPulling(false);
+
+    if (result.error) {
+      setSyncNotice({ type: 'error', message: result.error });
+    } else {
+      setSyncNotice({
+        type: 'success',
+        message: `Đã đồng bộ thành công ${result.count} phiếu khảo sát từ Google Sheets vào bảng thống kê!`,
+      });
+      onRefreshNeeded?.();
+    }
+  };
   const total = surveys.length;
   const synced = surveys.filter((s) => s.syncStatus === 'SYNCED').length;
   const pending = surveys.filter((s) => s.syncStatus === 'PENDING_SYNC').length;
@@ -115,6 +140,58 @@ export const StatisticsDashboard: React.FC<StatisticsDashboardProps> = ({ survey
 
   return (
     <div className="space-y-5">
+      {/* Google Sheets Sync Action Banner */}
+      <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+        <div>
+          <h3 className="font-bold text-slate-800 text-sm flex items-center gap-2">
+            <FileSpreadsheet className="w-4 h-4 text-emerald-600" />
+            <span>Đồng Bộ Cơ Sở Dữ Liệu Google Sheets</span>
+          </h3>
+          <p className="text-xs text-slate-500 mt-0.5">
+            Tải toàn bộ các phiếu khảo sát được thu thập từ tất cả các máy vào bảng thống kê này.
+          </p>
+        </div>
+
+        <div className="flex items-center gap-2 w-full sm:w-auto">
+          <button
+            onClick={handlePullGoogleSheets}
+            disabled={isPulling}
+            className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold shadow-xs transition cursor-pointer disabled:opacity-50"
+          >
+            <RefreshCw className={`w-3.5 h-3.5 ${isPulling ? 'animate-spin' : ''}`} />
+            <span>{isPulling ? 'Đang tải từ Google Sheets...' : 'Đồng bộ từ Google Sheets'}</span>
+          </button>
+
+          <a
+            href="https://docs.google.com/spreadsheets/d/1IQMieaQYSxdWW_G_FlVtJaH6ffGZ0ci00tvW4B8L6qs/edit?gid=0#gid=0"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="p-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl transition"
+            title="Mở file Google Sheets trên tab mới"
+          >
+            <ExternalLink className="w-4 h-4" />
+          </a>
+        </div>
+      </div>
+
+      {/* Sync Notification Notice */}
+      {syncNotice && (
+        <div
+          className={`p-3 rounded-xl text-xs flex items-start gap-2 ${
+            syncNotice.type === 'success'
+              ? 'bg-emerald-50 border border-emerald-200 text-emerald-800'
+              : 'bg-amber-50 border border-amber-200 text-amber-800'
+          }`}
+        >
+          {syncNotice.type === 'success' ? (
+            <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+          ) : (
+            <Info className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+          )}
+          <span>{syncNotice.message}</span>
+        </div>
+      )}
+
       {/* Top Overview Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">

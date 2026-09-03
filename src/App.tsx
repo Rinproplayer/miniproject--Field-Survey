@@ -14,7 +14,7 @@ import { StatisticsDashboard } from './components/StatisticsDashboard';
 import { GoogleSheetsConfigModal } from './components/GoogleSheetsConfigModal';
 import { getAllSurveys } from './services/db';
 import { initNetworkMonitoring } from './services/network';
-import { initAutoSync } from './services/sync';
+import { initAutoSync, fetchSurveysFromGoogleSheets } from './services/sync';
 import type { SmartphoneSurveyItem } from './types/survey';
 
 export function App() {
@@ -41,6 +41,15 @@ export function App() {
 
     // 3. Initial load from IndexedDB
     refreshSurveys();
+
+    // 4. Automatically pull Google Sheets data if online
+    if (navigator.onLine) {
+      fetchSurveysFromGoogleSheets().then((res) => {
+        if (res.count > 0) {
+          refreshSurveys();
+        }
+      }).catch(console.error);
+    }
   }, [refreshSurveys]);
 
   const pendingCount = surveys.filter((s) => s.syncStatus === 'PENDING_SYNC').length;
@@ -144,7 +153,9 @@ export function App() {
           <SurveyQueueList surveys={surveys} onRefreshNeeded={refreshSurveys} />
         )}
 
-        {activeTab === 'stats' && <StatisticsDashboard surveys={surveys} />}
+        {activeTab === 'stats' && (
+          <StatisticsDashboard surveys={surveys} onRefreshNeeded={refreshSurveys} />
+        )}
       </main>
 
       {/* Mobile Bottom Navigation Bar (App Shell UI) */}

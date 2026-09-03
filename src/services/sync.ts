@@ -143,3 +143,43 @@ export function initAutoSync(): void {
     });
   }
 }
+
+/**
+ * Fetch all survey records from Google Sheets and cache them into local IndexedDB
+ */
+export async function fetchSurveysFromGoogleSheets(): Promise<{ count: number; error?: string }> {
+  try {
+    const settings = await getSettings();
+    if (!settings.googleSheetsWebhookUrl) {
+      return { count: 0, error: 'Chưa cấu hình URL Google Sheets Webhook' };
+    }
+
+    const response = await fetch(settings.googleSheetsWebhookUrl, {
+      method: 'GET',
+    });
+
+    if (!response.ok) {
+      return { count: 0, error: `Lỗi máy chủ Google (${response.status})` };
+    }
+
+    const data = await response.json();
+    if (!Array.isArray(data)) {
+      return { count: 0, error: 'Dữ liệu chưa đúng định dạng mảng JSON' };
+    }
+
+    const { saveSurvey } = await import('./db');
+    for (const item of data) {
+      await saveSurvey({
+        ...item,
+        syncStatus: 'SYNCED',
+        retryCount: 0,
+      });
+    }
+
+    return { count: data.length };
+  } catch (err: any) {
+    console.error('Lỗi khi tải dữ liệu từ Google Sheets:', err);
+    return { count: 0, error: err?.message || 'Không thể đọc dữ liệu từ Google Sheets' };
+  }
+}
+
