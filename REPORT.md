@@ -10,6 +10,7 @@
 * **Team Members:**
   1. Nguyễn Trung Nguyên — Student ID: 23ITB.B143 — Role: Fullstack Architecture, PWA & State Management — Contribution: 100%
 * **🔗 Live Demo URL:** [https://miniproject--field-survey.pages.dev](https://miniproject--field-survey.pages.dev)
+* **💻 GitHub Repository:** [https://github.com/Rinproplayer/miniproject--Field-Survey.git](https://github.com/Rinproplayer/miniproject--Field-Survey.git)
 * **🎥 Video Demo (Optional):**
   - **Video 1 (Màn hình Desktop / PWA Test & Offline Sync):** [Screen Recording 2026-09-03 151328.mp4](./Screen%20Recording%202026-09-03%20151328.mp4)
   - **Video 2 (Thực nghiệm trên thiết bị di động / Mobile Screen Recording):** [1788423309133_2071063104022555579_9030307350361711956.mp4](./1788423309133_2071063104022555579_9030307350361711956.mp4)
