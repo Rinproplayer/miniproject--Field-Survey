@@ -122,7 +122,7 @@ export async function clearCurrentDraft(): Promise<void> {
 /* ================= APP SETTINGS & GOOGLE SHEETS ================= */
 
 const DEFAULT_SETTINGS: AppSettings = {
-  googleSheetsWebhookUrl: '',
+  googleSheetsWebhookUrl: 'https://script.google.com/macros/s/AKfycbzK1I1x0zHEQ6EjQizTtod_6RfPLD3z93o1AvYhbV56WVNOAxC1Pci4VsE7hc6L1NGh/exec',
   mockApiUrl: 'https://vku.udn.vn/api/smartphone-survey/sync',
   autoSyncOnReconnect: true,
   simulateOffline: false,
