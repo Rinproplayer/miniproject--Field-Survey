@@ -11,7 +11,6 @@ import { InstallPrompt } from './components/InstallPrompt';
 import { MultiStepForm } from './components/MultiStepForm';
 import { SurveyQueueList } from './components/SurveyQueueList';
 import { StatisticsDashboard } from './components/StatisticsDashboard';
-import { GoogleSheetsConfigModal } from './components/GoogleSheetsConfigModal';
 import { getAllSurveys } from './services/db';
 import { initNetworkMonitoring } from './services/network';
 import { initAutoSync, fetchSurveysFromGoogleSheets } from './services/sync';
@@ -20,7 +19,6 @@ import type { SmartphoneSurveyItem } from './types/survey';
 export function App() {
   const [activeTab, setActiveTab] = useState<'form' | 'queue' | 'stats'>('form');
   const [surveys, setSurveys] = useState<SmartphoneSurveyItem[]>([]);
-  const [isSheetsModalOpen, setIsSheetsModalOpen] = useState<boolean>(false);
 
   // Load surveys from IndexedDB
   const refreshSurveys = useCallback(async () => {
@@ -82,15 +80,17 @@ export function App() {
             </div>
           </div>
 
-          {/* Header Action: Google Sheets Config */}
-          <button
-            onClick={() => setIsSheetsModalOpen(true)}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold bg-emerald-50 text-emerald-800 border border-emerald-300 rounded-xl hover:bg-emerald-100 transition cursor-pointer shadow-xs"
-            title="Cấu hình kết nối cơ sở dữ liệu Google Sheets"
+          {/* Header Action: View Google Sheets */}
+          <a
+            href="https://docs.google.com/spreadsheets/d/1IQMieaQYSxdWW_G_FlVtJaH6ffGZ0ci00tvW4B8L6qs/edit?gid=0#gid=0"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold bg-emerald-50 text-emerald-800 border border-emerald-300 rounded-xl hover:bg-emerald-100 transition shadow-xs"
+            title="Mở trực tiếp bảng dữ liệu Google Sheets"
           >
             <FileSpreadsheet className="w-4 h-4 text-emerald-600" />
             <span className="hidden sm:inline">Google Sheets DB</span>
-          </button>
+          </a>
         </div>
 
         {/* Desktop Tab Navigation */}
@@ -197,20 +197,16 @@ export function App() {
           <span className="text-[10px]">Thống kê</span>
         </button>
 
-        <button
-          onClick={() => setIsSheetsModalOpen(true)}
-          className="flex flex-col items-center gap-1 py-1 px-3 rounded-xl text-slate-500 hover:text-emerald-700 transition cursor-pointer"
+        <a
+          href="https://docs.google.com/spreadsheets/d/1IQMieaQYSxdWW_G_FlVtJaH6ffGZ0ci00tvW4B8L6qs/edit?gid=0#gid=0"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex flex-col items-center gap-1 py-1 px-3 rounded-xl text-slate-500 hover:text-emerald-700 transition"
         >
           <FileSpreadsheet className="w-5 h-5" />
           <span className="text-[10px]">Google Sheets</span>
-        </button>
+        </a>
       </nav>
-
-      {/* Google Sheets Modal */}
-      <GoogleSheetsConfigModal
-        isOpen={isSheetsModalOpen}
-        onClose={() => setIsSheetsModalOpen(false)}
-      />
     </div>
   );
 }
