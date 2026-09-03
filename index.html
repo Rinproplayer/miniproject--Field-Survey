@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    <title>VKU Field Survey — Offline Data Collection</title>
+    
+    <!-- PWA & Theme Configuration -->
+    <meta name="theme-color" content="#0284c7" />
+    <meta name="description" content="Offline-first PWA for campus facility inspections & mobile surveys at VKU" />
+    <link rel="manifest" href="/manifest.json" />
+    <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192x192.png" />
+    <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
+    
+    <!-- iOS PWA meta tags -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="VKU Survey" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="format-detection" content="telephone=no" />
+  </head>
+  <body class="bg-slate-50 text-slate-900 antialiased min-h-screen">
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+    <script>
+      // Register Service Worker for PWA offline capabilities
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js')
+            .then((registration) => {
+              console.log('[PWA] ServiceWorker registered with scope:', registration.scope);
+              
+              // Register Background Sync if supported
+              if ('SyncManager' in window) {
+                registration.sync.register('sync-surveys')
+                  .then(() => console.log('[PWA] Background Sync registered: sync-surveys'))
+                  .catch((err) => console.log('[PWA] Background sync registration notice:', err));
+              }
+            })
+            .catch((err) => {
+              console.error('[PWA] ServiceWorker registration failed:', err);
+            });
+        });
+      }
+    </script>
+  </body>
+</html>

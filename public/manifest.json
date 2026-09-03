@@ -1,0 +1,50 @@
+{
+  "name": "VKU Field Survey — Offline Data Collection",
+  "short_name": "VKU Survey",
+  "description": "Offline-first PWA for VKU campus facility inspections & field survey audits",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "theme_color": "#0284c7",
+  "background_color": "#0f172a",
+  "lang": "vi-VN",
+  "icons": [
+    {
+      "src": "/icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-192x192-maskable.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512x512-maskable.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Khảo sát mới",
+      "url": "/?action=new",
+      "description": "Bắt đầu phiếu kiểm tra cơ sở vật chất mới"
+    },
+    {
+      "name": "Hàng đợi đồng bộ",
+      "url": "/?action=queue",
+      "description": "Xem danh sách khảo sát đang chờ đồng bộ"
+    }
+  ]
+}
