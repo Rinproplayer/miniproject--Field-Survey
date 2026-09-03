@@ -1,17 +1,18 @@
 # MINI-PROJECT SHORT TECHNICAL REPORT
 **Course:** Cross-Platform Mobile App Development (VKU)  
 **Mini-Project Title:** Mini-Project 1: VKU Field Survey — Offline Data Collection (PWA & Capacitor)  
-**Team / Student Name:** Nguyễn Thành Toàn  
+**Team / Student Name:** Nguyễn Trung Nguyên   
 **Submission Date:** 03/09/2026  
 
 ---
 
 ## 1. GENERAL INFORMATION & DELIVERABLE LINKS
 * **Team Members:**
-  1. Nguyễn Thành Toàn — Student ID: 23ITB — Role: Fullstack Architecture, PWA & State Management — Contribution: 100%
+  1. Nguyễn Trung Nguyên — Student ID: 23ITB.B143 — Role: Fullstack Architecture, PWA & State Management — Contribution: 100%
 * **🔗 Live Demo URL:** [https://miniproject--field-survey.pages.dev](https://miniproject--field-survey.pages.dev)
-* **💻 GitHub Repository:** [https://github.com/Rinproplayer/miniproject--Field-Survey.git](https://github.com/Rinproplayer/miniproject--Field-Survey.git)
-* **🎥 Video Demo (Optional):** *(Sẵn sàng trình chiếu thực nghiệm trực tiếp khi chấm bài)*
+* **🎥 Video Demo (Optional):**
+  - **Video 1 (Màn hình Desktop / PWA Test & Offline Sync):** [Screen Recording 2026-09-03 151328.mp4](./Screen%20Recording%202026-09-03%20151328.mp4)
+  - **Video 2 (Thực nghiệm trên thiết bị di động / Mobile Screen Recording):** [1788423309133_2071063104022555579_9030307350361711956.mp4](./1788423309133_2071063104022555579_9030307350361711956.mp4)
 
 ---
 
@@ -96,6 +97,10 @@
 
 * **Hình 4 — Kết Nối Cơ Sở Dữ Liệu Google Sheets & Thống Kê Dữ Liệu:**  
   Dữ liệu khảo sát được truyền tự động và chèn trực tiếp thành từng hàng trong Google Sheets thông qua Google Apps Script Webhook. Màn hình Thống kê hiển thị biểu đồ thị phần thương hiệu, xu hướng phân khúc và hỗ trợ tải về file CSV (Excel tiếng Việt chuẩn UTF-8).
+
+* **Minh Chứng Thực Nghiệm Trực Quan Qua Video (Live Screen Recordings):**
+  - 🎬 **Video 1 (Màn hình Desktop / PWA Test & Offline Sync):** [Screen Recording 2026-09-03 151328.mp4](./Screen%20Recording%202026-09-03%20151328.mp4) — Ghi lại quá trình kiểm thử tính năng Offline-First, nhập dữ liệu tự động lưu nháp vào IndexedDB, và cơ chế tự động đồng bộ hàng đợi `PENDING_SYNC` -> `SYNCED` khi có mạng trở lại.
+  - 📱 **Video 2 (Thực nghiệm trên thiết bị di động / Mobile Screen):** [1788423309133_2071063104022555579_9030307350361711956.mp4](./1788423309133_2071063104022555579_9030307350361711956.mp4) — Ghi lại thao tác thực tế trên giao diện điện thoại di động, cài đặt PWA vào màn hình chính và trải nghiệm toàn màn hình (Standalone).
 
 ---
 
